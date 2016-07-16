@@ -1,8 +1,13 @@
-FROM alpine:3.3
+FROM alpine:3.4
 
-RUN apk add --update bash ca-certificates curl
-ENV APPENV ""
+ARG VERSION
+ARG PROJECT
+ARG ENTRYPOINT
+ENV PROJECT  ${PROJECT:-""}
+ENV VERSION  ${VERSION:-""}
+ENV ENTRYPOINT ${ENTRYPOINT:-""}
 
-ADD bin/server /
+RUN apk add --update ca-certificates
 
-CMD ["/server"]
+ADD ./bin\/${ENTRYPOINT} ${ENTRYPOINT}
+ENTRYPOINT ${ENTRYPOINT}

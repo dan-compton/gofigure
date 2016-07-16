@@ -1,5 +1,5 @@
-APPENV ?= testenv
 PROJECT := gofigure
+ENTRYPOINT ?= server
 GITCOMMIT := $(shell git rev-parse --short HEAD)
 GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 GITUNTRACKEDCHANGES := $(shell git status --porcelain --untracked-files=no)
@@ -15,14 +15,14 @@ fmt:
 proto:
 	protoc --proto_path=./gofigure -I=./vendor --go_out=plugins=grpc:./gofigure ./gofigure/*.proto
 
-build: proto $(APPENV)
-	go build -o bin/server ./cmd/server/main.go
-	docker build -t dan-compton/$(PROJECT):$(GITCOMMIT) .
+# Build like: make ENTRYPOINT="server" or make ENTRYPOINT="test-client"
+build: proto
+	CC=$(which musl-gcc) go build --ldflags '-w -linkmode external -extldflags "-static"' -o bin/$(ENTRYPOINT) ./cmd/$(ENTRYPOINT)
+	docker build --build-arg ENTRYPOINT="/$(ENTRYPOINT)" --build-arg PROJECT=$(PROJECT) --build-arg VERSION=$(GITCOMMIT) -t dan-compton/$(PROJECT):$(GITCOMMIT) .
 
-run: $(APPENV)
+run:
 	docker run \
-		--env-file ./$(APPENV) \
-		dan-compton/$(PROJECT):$(GITCOMMIT) server
+		dan-compton/$(PROJECT):$(GITCOMMIT)
 
 push:
 	docker push dan-compton/$(PROJECT):$(GITCOMMIT)
