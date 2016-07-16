@@ -16,14 +16,13 @@ proto:
 	protoc --proto_path=./gofigure -I=./vendor --go_out=plugins=grpc:./gofigure ./gofigure/*.proto
 
 build: proto $(APPENV)
-	go build -o ./bin/server ./cmd/server
+	go build -o bin/server ./cmd/server/main.go
 	docker build -t dan-compton/$(PROJECT):$(GITCOMMIT) .
 
-run: build $(APPENV)
+run: $(APPENV)
 	docker run \
 		--env-file ./$(APPENV) \
-		--rm \
-		dan-compton/$(PROJECT):$(GITCOMMIT)
+		dan-compton/$(PROJECT):$(GITCOMMIT) server
 
 push:
 	docker push dan-compton/$(PROJECT):$(GITCOMMIT)

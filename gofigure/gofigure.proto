@@ -6,37 +6,33 @@ import "github.com/golang/protobuf/ptypes/struct/struct.proto";
 
 package gofigure;
 
+message ConfigVersion {
+    string id = 1;
+    int64 timestamp = 2;
+}
+
 // Map of Values that represents configuration data for a service
 // version specifies version bucket wherein configuration is stored
 message Config {
-    int64 version = 1;
+    ConfigVersion version = 1;
     google.protobuf.Struct configuration = 2;
 }
 
 // GRPC request to check service configuration
-// server uses version number to tell client if its config is current
-// incrementing version number corresponds to boltdb bucket containing serialized config within a services' bucket
-// Highest version number represents current configuration version
 message ConfigCheckRequest {
-    string service = 1;
-    int64 version = 2;
+    string service_name = 1;
+    ConfigVersion version = 2;
 }
 
 // Used by the client to check its configuration status
 message ConfigCheckResponse {
-    enum ConfigStatus {
-        OLD = 0;
-        CURRENT = 1;
-        FUTURE = 2;
-        INVALID = 3;
+    enum ConfigCheckStatus {
+        SUCCESS = 0;
+        ERRDOESNOTEXIST = 1;
+        ERRUNSPECIFIED = 2;
     }
-    ConfigStatus status = 1;
-}
-
-// Creates a new configuration for the given service
-message NewRequest {
-    string service_name = 1;
-    Config configuration = 2; 
+    ConfigCheckStatus status = 1; 
+    ConfigVersion version = 2;
 }
 
 // Store a new configuration on behalf of a service
@@ -50,7 +46,7 @@ message NewConfigResponse {
     enum NewConfigStatus {
         SUCCESS = 0;
         ERREXISTS = 1;
-        ERRUSPECIFIED = 2;
+        ERRUNSPECIFIED = 2;
     }
     NewConfigStatus status = 1; 
 }
@@ -58,7 +54,7 @@ message NewConfigResponse {
 // Returns config given service name and optional version
 message GetConfigRequest {
     string service_name = 1;
-    int64 version = 2;
+    ConfigVersion version = 2;
 }
 
 // Response for get service request
@@ -66,7 +62,7 @@ message GetConfigResponse {
     enum GetConfigStatus {
         SUCCESS = 0;
         ERRINVALID = 1;
-        ERRUSPECIFIED = 2;
+        ERRUNSPECIFIED = 2;
     }
     GetConfigStatus status = 1; 
     Config configuration = 2;
@@ -83,7 +79,7 @@ message UpdateConfigResponse {
     enum UpdateConfigStatus {
         SUCCESS = 0;
         ERRINVALID = 1;
-        ERRUSPECIFIED = 2;
+        ERRUNSPECIFIED = 2;
     }
     UpdateConfigStatus status = 1; 
 }
@@ -93,4 +89,5 @@ service GoFigurator {
     rpc NewConfig (NewConfigRequest) returns (NewConfigResponse) {}
     rpc GetConfig (GetConfigRequest) returns (GetConfigResponse) {}
     rpc UpdateConfig (UpdateConfigRequest) returns (UpdateConfigResponse) {}
+    rpc ConfigCheck (ConfigCheckRequest) returns (ConfigCheckResponse) {}
 }
