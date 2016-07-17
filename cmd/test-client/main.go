@@ -80,7 +80,7 @@ func main() {
 	log.WithFields(log.Fields{"response": gr, "error": err}).Info("get updated config response")
 
 	// Check Config
-	ccr := &pb.ConfigCheckRequest{
+	ccr := &pb.CheckConfigRequest{
 		ServiceName: serviceName,
 		Version: &pb.ConfigVersion{
 			Id:        serviceVersion,
@@ -88,6 +88,6 @@ func main() {
 		},
 	}
 
-	cr, err := c.ConfigCheck(context.Background(), ccr)
+	cr, err := c.CheckConfig(context.Background(), ccr)
 	log.WithFields(log.Fields{"response": cr, "error": err}).Info("check config response")
 }
