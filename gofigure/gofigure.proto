@@ -19,19 +19,20 @@ message Config {
 }
 
 // GRPC request to check service configuration
-message ConfigCheckRequest {
+message CheckConfigRequest {
     string service_name = 1;
     ConfigVersion version = 2;
 }
 
 // Used by the client to check its configuration status
-message ConfigCheckResponse {
-    enum ConfigCheckStatus {
+message CheckConfigResponse {
+    enum CheckConfigStatus {
         SUCCESS = 0;
-        ERRDOESNOTEXIST = 1;
-        ERRUNSPECIFIED = 2;
-    }
-    ConfigCheckStatus status = 1; 
+        ERR_INVALID_SERVICE = 1;
+        ERR_INVALID_CONFIG = 2;
+        ERR_UNSPECIFIED = 3;
+   }
+    CheckConfigStatus status = 1; 
     ConfigVersion version = 2;
 }
 
@@ -45,8 +46,9 @@ message NewConfigRequest {
 message NewConfigResponse {
     enum NewConfigStatus {
         SUCCESS = 0;
-        ERREXISTS = 1;
-        ERRUNSPECIFIED = 2;
+        ERR_INVALID_SERVICE = 1;
+        ERR_INVALID_CONFIG = 2;
+        ERR_UNSPECIFIED = 3;
     }
     NewConfigStatus status = 1; 
 }
@@ -61,14 +63,16 @@ message GetConfigRequest {
 message GetConfigResponse {
     enum GetConfigStatus {
         SUCCESS = 0;
-        ERRINVALID = 1;
-        ERRUNSPECIFIED = 2;
-    }
+        ERR_INVALID_SERVICE = 1;
+        ERR_INVALID_CONFIG = 2;
+        ERR_UNSPECIFIED = 3;
+   }
+
     GetConfigStatus status = 1; 
     Config configuration = 2;
 }
 
-// Store new service configuration in service/(version+1)
+// Store new service configuration in service
 message UpdateConfigRequest {
     string service_name = 1;
     Config configuration = 2;
@@ -78,8 +82,9 @@ message UpdateConfigRequest {
 message UpdateConfigResponse {
     enum UpdateConfigStatus {
         SUCCESS = 0;
-        ERRINVALID = 1;
-        ERRUNSPECIFIED = 2;
+        ERR_INVALID_SERVICE = 1;
+        ERR_INVALID_CONFIG = 2;
+        ERR_UNSPECIFIED = 3;
     }
     UpdateConfigStatus status = 1; 
 }
@@ -89,5 +94,5 @@ service GoFigurator {
     rpc NewConfig (NewConfigRequest) returns (NewConfigResponse) {}
     rpc GetConfig (GetConfigRequest) returns (GetConfigResponse) {}
     rpc UpdateConfig (UpdateConfigRequest) returns (UpdateConfigResponse) {}
-    rpc ConfigCheck (ConfigCheckRequest) returns (ConfigCheckResponse) {}
+    rpc CheckConfig (CheckConfigRequest) returns (CheckConfigResponse) {}
 }
