@@ -26,25 +26,6 @@ func main() {
 	serviceName := "blah"
 	serviceVersion := "someversion"
 
-	// New
-	ncr := &pb.NewConfigRequest{
-		ServiceName: serviceName,
-		Configuration: &pb.Config{
-			Version: &pb.ConfigVersion{
-				Id:        serviceVersion,
-				Timestamp: time.Now().Unix(),
-			},
-			Configuration: &structpb.Struct{
-				Fields: map[string]*structpb.Value{
-					"somekey": &structpb.Value{&structpb.Value_StringValue{"somevalue"}},
-				},
-			},
-		},
-	}
-
-	r, err := c.NewConfig(context.Background(), ncr)
-	log.WithFields(log.Fields{"response": r, "error": err}).Info("new config response")
-
 	// Get
 	gcr := &pb.GetConfigRequest{
 		ServiceName: serviceName,
@@ -59,7 +40,7 @@ func main() {
 	// Update
 	ucr := &pb.UpdateConfigRequest{
 		ServiceName: serviceName,
-		Configuration: &pb.Config{
+		Configuration: &pb.ProtoConfig{
 			Version: &pb.ConfigVersion{
 				Id:        serviceVersion,
 				Timestamp: time.Now().Unix(),
