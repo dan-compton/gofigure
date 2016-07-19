@@ -20,7 +20,7 @@ build: proto
 	CC=$(which musl-gcc) go build --ldflags '-w -linkmode external -extldflags "-static"' -o bin/$(ENTRYPOINT) ./cmd/$(ENTRYPOINT)
 	docker build --build-arg ENTRYPOINT="/$(ENTRYPOINT)" --build-arg PROJECT=$(PROJECT) --build-arg VERSION=$(GITCOMMIT) -t dan-compton/$(PROJECT):$(GITCOMMIT) .
 
-run:
+run: build
 	docker run \
 		dan-compton/$(PROJECT):$(GITCOMMIT)
 

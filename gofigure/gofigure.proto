@@ -11,11 +11,23 @@ message ConfigVersion {
     int64 timestamp = 2;
 }
 
+
+message ProtoConfig {
+    google.protobuf.Struct data = 1;
+}
+
+message YamlConfig {
+    bytes raw_data = 1;
+}
+
 // Map of Values that represents configuration data for a service
 // version specifies version bucket wherein configuration is stored
 message Config {
     ConfigVersion version = 1;
-    google.protobuf.Struct configuration = 2;
+    oneof a_config {
+        ProtoConfig proto = 2;
+        YamlConfig yaml = 3;
+    }
 }
 
 // GRPC request to check service configuration

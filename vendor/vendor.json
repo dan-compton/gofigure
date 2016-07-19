@@ -103,6 +103,12 @@
 			"path": "google.golang.org/grpc/transport",
 			"revision": "b0b7afa173ab8030774fdf383cac027c3c5077d2",
 			"revisionTime": "2016-05-17T22:15:47Z"
+		},
+		{
+			"checksumSHA1": "yV+2de12Q/t09hBGYGKEOFr1/zc=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "e4d366fc3c7938e2958e662b4258c7a89e1f0e3e",
+			"revisionTime": "2016-07-15T03:37:55Z"
 		}
 	],
 	"rootPath": "github.com/dan-compton/gofigure"

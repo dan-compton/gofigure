@@ -9,7 +9,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	pb "github.com/dan-compton/gofigure/gofigure"
-	"github.com/gogo/protobuf/proto"
+	proto "github.com/golang/protobuf/proto"
 	log "github.com/opsee/logrus"
 	"golang.org/x/net/context"
 )
@@ -43,18 +43,19 @@ func (s *service) NewConfig(ctx context.Context, in *pb.NewConfigRequest) (*pb.N
 		timestamp := fmt.Sprintf("%d", t)
 		configId := in.Configuration.Version.Id
 
-		// store config as proto bytes
-		d, err := proto.Marshal(in.Configuration)
-		if err != nil {
-			return err
-		}
-
 		// create version bucket
 		bb, err := b.CreateBucketIfNotExists([]byte(configId))
 		if err != nil {
 			return err
 		}
 		log.Debugf("created bucket %s in %s", configId, in.ServiceName)
+
+		// store config as proto bytes
+		d, err := proto.Marshal(in.Configuration)
+		if err != nil {
+			return err
+		}
+		log.Info("Storing bytes: %v", d)
 
 		// store the configuration at service_name->Id->timestamp=protobuf
 		err = bb.Put([]byte(timestamp), d)
@@ -138,7 +139,6 @@ func (s *service) GetConfig(ctx context.Context, in *pb.GetConfigRequest) (*pb.G
 				return nil
 			}
 			timestamp = string(t)
-			log.Debugf("2timestamp: %s", timestamp)
 		}
 		log.Debugf("fetching config %s timestamp: %s", version, timestamp)
 
@@ -148,6 +148,7 @@ func (s *service) GetConfig(ctx context.Context, in *pb.GetConfigRequest) (*pb.G
 			response.Status = pb.GetConfigResponse_ERR_INVALID_CONFIG
 			return nil
 		}
+		log.Debugf("got bytes: %s", string(d))
 
 		// unmarshal config
 		config := &pb.Config{}
@@ -155,7 +156,8 @@ func (s *service) GetConfig(ctx context.Context, in *pb.GetConfigRequest) (*pb.G
 		if err != nil {
 			return err
 		}
-		log.Debugf("unmarshalled config %v", config)
+		log.Debugf("unmarshalled config %+v", config)
+		log.Debugf("asdfasdf %v", config.GetYaml())
 
 		response.Status = pb.GetConfigResponse_SUCCESS
 		response.Configuration = config
