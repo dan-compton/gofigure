@@ -51,14 +51,16 @@ var newCmd = &cobra.Command{
 			return
 		}
 
+		fmt.Printf("%s", string(yamlBytes))
+
 		ncr := &pb.NewConfigRequest{
 			ServiceName: serviceName,
 			Configuration: &pb.Config{
 				Version: &pb.ConfigVersion{
 					Id: configVersion,
 				},
-				Configuration: &pb.Config_YamlConfig{
-					YamlConfig: &pb.YAMLConfig{
+				AConfig: &pb.Config_Yaml{
+					Yaml: &pb.YamlConfig{
 						RawData: yamlBytes,
 					},
 				},
@@ -85,5 +87,4 @@ func init() {
 	newCmd.Flags().StringVarP(&configVersion, "config_version", "v", "default_version", "identifier for given configuration")
 	newCmd.Flags().StringVarP(&serviceName, "service_name", "s", "default_service", "identifier for given service")
 	newCmd.Flags().StringVarP(&address, "address", "a", "localhost:9113", "address of target gofigure server")
-
 }

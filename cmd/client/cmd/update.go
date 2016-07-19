@@ -50,8 +50,8 @@ var updateCmd = &cobra.Command{
 				Version: &pb.ConfigVersion{
 					Id: configVersion,
 				},
-				Configuration: &pb.Config_YamlConfig{
-					YamlConfig: &pb.YAMLConfig{
+				AConfig: &pb.Config_Yaml{
+					Yaml: &pb.YamlConfig{
 						RawData: yamlBytes,
 					},
 				},

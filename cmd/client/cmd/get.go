@@ -17,6 +17,9 @@ package cmd
 import (
 	"fmt"
 
+	"golang.org/x/net/context"
+
+	pb "github.com/dan-compton/gofigure/gofigure"
 	"google.golang.org/grpc"
 
 	"github.com/spf13/cobra"
@@ -45,19 +48,29 @@ var getCmd = &cobra.Command{
 			},
 		}
 
+		r, err := c.GetConfig(context.Background(), ncr)
 		if err != nil {
 			fmt.Printf("Could not get config: %s", err.Error())
 			return
 		} else {
-			if r.Status == pb.NewConfigResponse_SUCCESS {
-				fmt.Printf("Got config.")
+			if r.Status == pb.GetConfigResponse_SUCCESS {
+				if configFile != "" {
+					switch t := r.Configuration.AConfig.(type) {
+					case *pb.Config_Yaml:
+						z := t.Yaml
+						fmt.Printf("%s, %d", z.RawData, len(z.RawData))
+						//ioutil.WriteFile(configFile, , 0644)
+					case *pb.Config_Proto:
+						z := t.Proto
+						fmt.Printf("%v, %d", z.Data)
+					default:
+						fmt.Printf("not that %s", t)
+					}
+				}
 			} else {
 				fmt.Printf("Could not get config.  Code: %v", r.Status)
 			}
 		}
-
-		// TODO: Work your own magic here
-		fmt.Println("get called")
 	},
 }
 

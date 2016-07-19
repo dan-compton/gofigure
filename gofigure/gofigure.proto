@@ -13,10 +13,10 @@ message ConfigVersion {
 
 
 message ProtoConfig {
-    google.protobuf.Struct data = 2;
+    google.protobuf.Struct data = 1;
 }
 
-message YAMLConfig {
+message YamlConfig {
     bytes raw_data = 1;
 }
 
@@ -24,9 +24,9 @@ message YAMLConfig {
 // version specifies version bucket wherein configuration is stored
 message Config {
     ConfigVersion version = 1;
-    oneof configuration {
-        ProtoConfig proto_config = 101;
-        YAMLConfig yaml_config = 102;
+    oneof a_config {
+        ProtoConfig proto = 2;
+        YamlConfig yaml = 3;
     }
 }
 
