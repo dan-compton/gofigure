@@ -67,7 +67,7 @@ var updateCmd = &cobra.Command{
 			fmt.Printf("Could not update config: %s", err.Error())
 			return
 		} else {
-			if r.Status == pb.UpdateConfigResponse_SUCCESS {
+			if r.Status == pb.Status_SUCCESS {
 				fmt.Print("Successfully updated configuration.")
 			} else {
 				fmt.Printf("Could not create update configuration.  Code: %v", r.Status)

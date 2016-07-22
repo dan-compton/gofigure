@@ -63,7 +63,7 @@ var newCmd = &cobra.Command{
 			fmt.Printf("Could not create new config: %s", err.Error())
 			return
 		} else {
-			if r.Status == pb.NewConfigResponse_SUCCESS {
+			if r.Status == pb.Status_SUCCESS {
 				fmt.Print("Created new config.")
 			} else {
 				fmt.Printf("Could not create new config.  Code: %v", r.Status)

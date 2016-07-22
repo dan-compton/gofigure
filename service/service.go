@@ -23,7 +23,7 @@ type service struct {
 func (s *service) NewConfig(ctx context.Context, in *pb.NewConfigRequest) (*pb.NewConfigResponse, error) {
 	log.Debugf("received newconfig request for version: %s", in.Configuration.Version.Id)
 	response := &pb.NewConfigResponse{
-		Status: pb.NewConfigResponse_ERR_UNSPECIFIED,
+		Status: pb.Status_ERR_UNSPECIFIED,
 	}
 
 	// validation
@@ -76,7 +76,7 @@ func (s *service) NewConfig(ctx context.Context, in *pb.NewConfigRequest) (*pb.N
 		}
 		log.Debugf("new current_version %s for %s", configId, in.ServiceName)
 
-		response.Status = pb.NewConfigResponse_SUCCESS
+		response.Status = pb.Status_SUCCESS
 		return nil
 	})
 	if err != nil {
@@ -90,7 +90,7 @@ func (s *service) NewConfig(ctx context.Context, in *pb.NewConfigRequest) (*pb.N
 func (s *service) GetConfig(ctx context.Context, in *pb.GetConfigRequest) (*pb.GetConfigResponse, error) {
 	log.Debugf("received getconfig request")
 	response := &pb.GetConfigResponse{
-		Status: pb.GetConfigResponse_ERR_UNSPECIFIED,
+		Status: pb.Status_ERR_UNSPECIFIED,
 	}
 
 	// validation
@@ -101,7 +101,7 @@ func (s *service) GetConfig(ctx context.Context, in *pb.GetConfigRequest) (*pb.G
 	err := s.store.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(in.ServiceName))
 		if b == nil {
-			response.Status = pb.GetConfigResponse_ERR_INVALID_SERVICE
+			response.Status = pb.Status_ERR_INVALID_SERVICE
 			return nil
 		}
 
@@ -113,7 +113,7 @@ func (s *service) GetConfig(ctx context.Context, in *pb.GetConfigRequest) (*pb.G
 			// get current config version
 			v := b.Get([]byte("current_version"))
 			if v == nil {
-				response.Status = pb.GetConfigResponse_ERR_INVALID_CONFIG
+				response.Status = pb.Status_ERR_INVALID_CONFIG
 				return nil
 			}
 			version = string(v)
@@ -124,7 +124,7 @@ func (s *service) GetConfig(ctx context.Context, in *pb.GetConfigRequest) (*pb.G
 		bb := b.Bucket([]byte(version))
 		if bb == nil {
 			log.Debugf("couldn't fetch bucket %s", in.Version.Id)
-			response.Status = pb.GetConfigResponse_ERR_INVALID_CONFIG
+			response.Status = pb.Status_ERR_INVALID_CONFIG
 			return nil
 		}
 
@@ -134,7 +134,7 @@ func (s *service) GetConfig(ctx context.Context, in *pb.GetConfigRequest) (*pb.G
 			// get current config version
 			t := bb.Get([]byte("current_timestamp"))
 			if t == nil {
-				response.Status = pb.GetConfigResponse_ERR_INVALID_CONFIG
+				response.Status = pb.Status_ERR_INVALID_CONFIG
 				return nil
 			}
 			timestamp = string(t)
@@ -144,7 +144,7 @@ func (s *service) GetConfig(ctx context.Context, in *pb.GetConfigRequest) (*pb.G
 		// get config
 		d := bb.Get([]byte(timestamp))
 		if d == nil {
-			response.Status = pb.GetConfigResponse_ERR_INVALID_CONFIG
+			response.Status = pb.Status_ERR_INVALID_CONFIG
 			return nil
 		}
 
@@ -155,7 +155,7 @@ func (s *service) GetConfig(ctx context.Context, in *pb.GetConfigRequest) (*pb.G
 			return err
 		}
 
-		response.Status = pb.GetConfigResponse_SUCCESS
+		response.Status = pb.Status_SUCCESS
 		response.Configuration = config
 		return nil
 	})
@@ -171,7 +171,7 @@ func (s *service) GetConfig(ctx context.Context, in *pb.GetConfigRequest) (*pb.G
 func (s *service) UpdateConfig(ctx context.Context, in *pb.UpdateConfigRequest) (*pb.UpdateConfigResponse, error) {
 	log.Debugf("received updateconfig request")
 	response := &pb.UpdateConfigResponse{
-		Status: pb.UpdateConfigResponse_ERR_UNSPECIFIED,
+		Status: pb.Status_ERR_UNSPECIFIED,
 	}
 
 	// validation
@@ -183,7 +183,7 @@ func (s *service) UpdateConfig(ctx context.Context, in *pb.UpdateConfigRequest) 
 		// get service bucket
 		b := tx.Bucket([]byte(in.ServiceName))
 		if b == nil {
-			response.Status = pb.UpdateConfigResponse_ERR_INVALID_SERVICE
+			response.Status = pb.Status_ERR_INVALID_SERVICE
 			return nil
 		}
 
@@ -195,7 +195,7 @@ func (s *service) UpdateConfig(ctx context.Context, in *pb.UpdateConfigRequest) 
 			// get current config version
 			v := b.Get([]byte("current_version"))
 			if v == nil {
-				response.Status = pb.UpdateConfigResponse_ERR_INVALID_CONFIG
+				response.Status = pb.Status_ERR_INVALID_CONFIG
 				return nil
 			}
 			log.Debugf("Got current config version number: %d", v)
@@ -205,7 +205,7 @@ func (s *service) UpdateConfig(ctx context.Context, in *pb.UpdateConfigRequest) 
 		// get specified or current version bucket
 		bb := b.Bucket([]byte(version))
 		if bb == nil {
-			response.Status = pb.UpdateConfigResponse_ERR_INVALID_CONFIG
+			response.Status = pb.Status_ERR_INVALID_CONFIG
 			return nil
 		}
 
@@ -238,7 +238,7 @@ func (s *service) UpdateConfig(ctx context.Context, in *pb.UpdateConfigRequest) 
 		}
 		log.Debugf("updated current_version of %s to Id %s and timestamp %d", in.ServiceName, in.Configuration.Version.Id, t)
 
-		response.Status = pb.UpdateConfigResponse_SUCCESS
+		response.Status = pb.Status_SUCCESS
 		return nil
 	})
 	if err != nil {
@@ -252,7 +252,7 @@ func (s *service) UpdateConfig(ctx context.Context, in *pb.UpdateConfigRequest) 
 func (s *service) CheckConfig(ctx context.Context, in *pb.CheckConfigRequest) (*pb.CheckConfigResponse, error) {
 	log.Debugf("received checkconfig request")
 	response := &pb.CheckConfigResponse{
-		Status: pb.CheckConfigResponse_ERR_UNSPECIFIED,
+		Status: pb.Status_ERR_UNSPECIFIED,
 	}
 
 	err := s.store.View(func(tx *bolt.Tx) error {
@@ -261,20 +261,20 @@ func (s *service) CheckConfig(ctx context.Context, in *pb.CheckConfigRequest) (*
 		// get current config version
 		v := b.Get([]byte("current_version"))
 		if v == nil {
-			response.Status = pb.CheckConfigResponse_ERR_INVALID_SERVICE
+			response.Status = pb.Status_ERR_INVALID_SERVICE
 			return nil
 		}
 
 		// get config current version bucket
 		bb := b.Bucket([]byte(v))
 		if bb == nil {
-			response.Status = pb.CheckConfigResponse_ERR_INVALID_CONFIG
+			response.Status = pb.Status_ERR_INVALID_CONFIG
 			return nil
 		}
 
 		t := bb.Get([]byte("current_timestamp"))
 		if t == nil {
-			response.Status = pb.CheckConfigResponse_ERR_INVALID_CONFIG
+			response.Status = pb.Status_ERR_INVALID_CONFIG
 			return nil
 		}
 		log.Debugf("got config current_timestamp: %s", t)
@@ -282,7 +282,7 @@ func (s *service) CheckConfig(ctx context.Context, in *pb.CheckConfigRequest) (*
 		// get config
 		d := bb.Get([]byte(t))
 		if v == nil {
-			response.Status = pb.CheckConfigResponse_ERR_INVALID_CONFIG
+			response.Status = pb.Status_ERR_INVALID_CONFIG
 			return nil
 		}
 
@@ -293,7 +293,7 @@ func (s *service) CheckConfig(ctx context.Context, in *pb.CheckConfigRequest) (*
 			return err
 		}
 
-		response.Status = pb.CheckConfigResponse_SUCCESS
+		response.Status = pb.Status_SUCCESS
 		response.Version = config.Version
 		return nil
 	})

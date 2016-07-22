@@ -57,7 +57,7 @@ var getCmd = &cobra.Command{
 			fmt.Printf("Could not get config: %s", err.Error())
 			return
 		} else {
-			if r.Status == pb.GetConfigResponse_SUCCESS {
+			if r.Status == pb.Status_SUCCESS {
 				if serviceConfig != "" {
 					switch t := r.Configuration.AConfig.(type) {
 					case *pb.Config_Yaml:
